@@ -70,20 +70,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (!error && data.user) {
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert([
-          {
-            user_id: data.user.id,
-            user_type: userType as any,
-            email
-          }
-        ]);
+      // Update user type if not student (trigger creates student by default)
+      if (userType !== 'student') {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .update({ user_type: userType as any })
+          .eq('user_id', data.user.id);
 
-      if (!profileError && userType === 'student' && additionalData) {
-        // Create student profile
-        await supabase
+        if (profileError) {
+          console.error('Error updating user type:', profileError);
+        }
+      }
+
+      // Create student profile if needed
+      if (userType === 'student' && additionalData) {
+        const { error: studentError } = await supabase
           .from('students')
           .insert([
             {
@@ -95,9 +96,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               bio: additionalData.bio
             }
           ]);
+
+        if (studentError) {
+          console.error('Error creating student profile:', studentError);
+        }
       }
 
-      return { error: profileError };
+      return { error: null };
     }
 
     return { error };
