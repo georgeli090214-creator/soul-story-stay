@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MapPin, Users, Clock, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Heart, MapPin, Users, Clock, Star, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Families = () => {
   const [filter, setFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Mock family data - in real app this would come from API
   const families = [
@@ -94,14 +96,25 @@ const Families = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Page Title */}
+        {/* Page Title & Search */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">
             寻找你的温暖家庭
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground mb-6">
             Discover families who will welcome you with open hearts
           </p>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="搜索城市或家庭名字 Search city or family name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
         {/* Filter Buttons */}
