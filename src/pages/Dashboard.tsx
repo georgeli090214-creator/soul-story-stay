@@ -38,8 +38,6 @@ const Dashboard = () => {
     if (!user || !userProfile) return;
 
     try {
-      let query = supabase.from('inquiries');
-
       if (userProfile.user_type === 'student') {
         // Fetch inquiries sent by this student
         const { data: studentData } = await supabase
@@ -49,7 +47,8 @@ const Dashboard = () => {
           .maybeSingle();
 
         if (studentData) {
-          query = query
+          const { data, error } = await supabase
+            .from('inquiries')
             .select(`
               id,
               status,
@@ -60,7 +59,13 @@ const Dashboard = () => {
                 location
               )
             `)
-            .eq('student_id', studentData.id);
+            .eq('student_id', studentData.id)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          setInquiries(data || []);
+        } else {
+          setInquiries([]);
         }
       } else if (userProfile.user_type === 'host_family') {
         // Fetch inquiries received by this family
@@ -71,7 +76,8 @@ const Dashboard = () => {
           .maybeSingle();
 
         if (familyData) {
-          query = query
+          const { data, error } = await supabase
+            .from('inquiries')
             .select(`
               id,
               status,
@@ -82,16 +88,20 @@ const Dashboard = () => {
                 university
               )
             `)
-            .eq('family_id', familyData.id);
+            .eq('family_id', familyData.id)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          setInquiries(data || []);
+        } else {
+          setInquiries([]);
         }
+      } else {
+        setInquiries([]);
       }
-
-      const { data, error } = await query.order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setInquiries(data || []);
     } catch (error) {
       console.error('Error fetching inquiries:', error);
+      setInquiries([]);
     } finally {
       setInquiriesLoading(false);
     }
