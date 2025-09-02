@@ -14,7 +14,260 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      families: {
+        Row: {
+          average_stay_months: number | null
+          created_at: string
+          current_students: number | null
+          description: string | null
+          family_story: string | null
+          hosting_experience: string
+          id: string
+          location: string
+          name: string
+          photos: string[] | null
+          price_range: string
+          total_students_hosted: number | null
+          updated_at: string
+          user_id: string
+          values: string[] | null
+          verified: boolean | null
+          video_url: string | null
+          why_we_host: string | null
+        }
+        Insert: {
+          average_stay_months?: number | null
+          created_at?: string
+          current_students?: number | null
+          description?: string | null
+          family_story?: string | null
+          hosting_experience: string
+          id?: string
+          location: string
+          name: string
+          photos?: string[] | null
+          price_range: string
+          total_students_hosted?: number | null
+          updated_at?: string
+          user_id: string
+          values?: string[] | null
+          verified?: boolean | null
+          video_url?: string | null
+          why_we_host?: string | null
+        }
+        Update: {
+          average_stay_months?: number | null
+          created_at?: string
+          current_students?: number | null
+          description?: string | null
+          family_story?: string | null
+          hosting_experience?: string
+          id?: string
+          location?: string
+          name?: string
+          photos?: string[] | null
+          price_range?: string
+          total_students_hosted?: number | null
+          updated_at?: string
+          user_id?: string
+          values?: string[] | null
+          verified?: boolean | null
+          video_url?: string | null
+          why_we_host?: string | null
+        }
+        Relationships: []
+      }
+      inquiries: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          message: string | null
+          status: Database["public"]["Enums"]["inquiry_status"] | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          message?: string | null
+          status?: Database["public"]["Enums"]["inquiry_status"] | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          message?: string | null
+          status?: Database["public"]["Enums"]["inquiry_status"] | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          inquiry_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_stories: {
+        Row: {
+          content: string
+          created_at: string
+          family_id: string
+          id: string
+          photos: string[] | null
+          story_type: Database["public"]["Enums"]["story_type"]
+          student_id: string
+          title: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          family_id: string
+          id?: string
+          photos?: string[] | null
+          story_type: Database["public"]["Enums"]["story_type"]
+          student_id: string
+          title?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          family_id?: string
+          id?: string
+          photos?: string[] | null
+          story_type?: Database["public"]["Enums"]["story_type"]
+          student_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_stories_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_stories_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          age: number | null
+          bio: string | null
+          created_at: string
+          hometown: string | null
+          id: string
+          name: string
+          photo_url: string | null
+          university: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          bio?: string | null
+          created_at?: string
+          hometown?: string | null
+          id?: string
+          name: string
+          photo_url?: string | null
+          university?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          bio?: string | null
+          created_at?: string
+          hometown?: string | null
+          id?: string
+          name?: string
+          photo_url?: string | null
+          university?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +276,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      inquiry_status: "pending" | "accepted" | "declined"
+      story_type: "moment" | "growth_letter" | "milestone"
+      user_type: "student" | "host_family" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +405,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      inquiry_status: ["pending", "accepted", "declined"],
+      story_type: ["moment", "growth_letter", "milestone"],
+      user_type: ["student", "host_family", "admin"],
+    },
   },
 } as const
