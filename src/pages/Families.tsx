@@ -83,12 +83,16 @@ const Families = () => {
             </Link>
             
             <div className="flex items-center gap-4">
-              <Button variant="outline">
-                For Families
-              </Button>
-              <Button>
-                Student Login
-              </Button>
+              <Link to="/dashboard">
+                <Button variant="outline">
+                  For Families
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button>
+                  Student Login
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

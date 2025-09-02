@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const { user, signUp, signIn, loading } = useAuth();
+  const { user, userProfile, signUp, signIn, loading } = useAuth();
   const { toast } = useToast();
   
   const [email, setEmail] = useState('');
@@ -33,6 +33,10 @@ const Auth = () => {
   }
 
   if (user) {
+    // Redirect based on user type
+    if (userProfile?.user_type === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/families" replace />;
   }
 
@@ -137,6 +141,10 @@ const Auth = () => {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="host_family" id="host_family" />
                       <Label htmlFor="host_family">寄宿家庭</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="admin" id="admin" />
+                      <Label htmlFor="admin">管理员</Label>
                     </div>
                   </RadioGroup>
                 </div>
