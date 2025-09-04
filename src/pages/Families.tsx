@@ -40,10 +40,30 @@ const Families = () => {
 
   const fetchFamilies = async () => {
     try {
-      // Use the secure public view that excludes user_id for anonymous users
+      // Query families table directly with verified filter and authentication
+      // This ensures proper RLS policy enforcement
       const { data, error } = await supabase
-        .from('families_public')
-        .select('*')
+        .from('families')
+        .select(`
+          id,
+          name,
+          location,
+          hosting_experience,
+          price_range,
+          current_students,
+          total_students_hosted,
+          average_stay_months,
+          verified,
+          description,
+          values,
+          photos,
+          video_url,
+          why_we_host,
+          family_story,
+          created_at,
+          updated_at
+        `)
+        .eq('verified', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
