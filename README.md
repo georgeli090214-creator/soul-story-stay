@@ -1,73 +1,340 @@
-# Welcome to your Lovable project
+# 心灵港湾 (Soulful Home) - International Student Homestay Platform
 
-## Project info
+## Project Overview
 
 **URL**: https://lovable.dev/projects/8b93df0c-9e39-44ec-98cf-aec49d5a5278
 
-## How can I edit this code?
+心灵港湾 (Soulful Home) is a comprehensive bilingual platform that connects international students with carefully selected host families. The platform facilitates meaningful cultural exchange while providing students with safe, welcoming homes during their studies abroad.
 
-There are several ways of editing your application.
+## MVP Features & Functionality
 
-**Use Lovable**
+### 🏠 Core Platform Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8b93df0c-9e39-44ec-98cf-aec49d5a5278) and start prompting.
+#### 1. **Family Discovery & Browsing**
+- Browse verified host families with detailed profiles
+- Advanced filtering by location, experience, and preferences  
+- Family stories, photos, and student testimonials
+- Real-time pricing and availability information
+- Bilingual support (English/中文)
 
-Changes made via Lovable will be committed automatically to this repo.
+#### 2. **User Authentication System**
+- Multi-role authentication (Students, Host Families, Admins)
+- Secure registration with email verification
+- Role-based access control and permissions
+- Automatic profile creation with database triggers
 
-**Use your preferred IDE**
+#### 3. **Connection & Inquiry System**
+- Students can send personalized connection requests to families
+- Real-time inquiry status tracking (pending/accepted/declined)
+- Message system for initial communication
+- Family response management dashboard
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+#### 4. **Dashboard Management**
+- **Student Dashboard**: Track sent inquiries, view responses, manage connections
+- **Family Dashboard**: Review incoming requests, accept/decline inquiries
+- **Admin Dashboard**: System oversight, user management, platform analytics
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### 5. **Comprehensive Family Profiles**
+- Detailed family stories and hosting philosophy
+- Photo galleries of rooms and living spaces
+- Student experience testimonials and reviews
+- Practical information (location, transportation, house rules)
+- Family member introductions and languages spoken
 
-Follow these steps:
+## System Architecture
+
+### Technology Stack
+
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Framework**: shadcn/ui + Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Authentication + Real-time)
+- **State Management**: TanStack Query + React Context
+- **Routing**: React Router v6
+- **Styling**: Custom design system with semantic tokens
+
+### Database Schema
+
+<lov-mermaid>
+erDiagram
+    users {
+        uuid id PK
+        string email
+        timestamp created_at
+    }
+    
+    user_profiles {
+        uuid id PK
+        uuid user_id FK
+        string email
+        enum user_type
+        timestamp created_at
+    }
+    
+    students {
+        uuid id PK
+        uuid user_id FK
+        string name
+        integer age
+        string university
+        string hometown
+        text bio
+        timestamp created_at
+    }
+    
+    families {
+        uuid id PK
+        uuid user_id FK
+        string name
+        string location
+        string hosting_experience
+        integer current_students
+        string price_range
+        boolean verified
+        timestamp created_at
+    }
+    
+    inquiries {
+        uuid id PK
+        uuid student_id FK
+        uuid family_id FK
+        text message
+        enum status
+        timestamp created_at
+    }
+    
+    users ||--|| user_profiles : "has profile"
+    user_profiles ||--o| students : "can be student"
+    user_profiles ||--o| families : "can be family"
+    students ||--o{ inquiries : "sends inquiries"
+    families ||--o{ inquiries : "receives inquiries"
+</lov-mermaid>
+
+## User Interaction Flows
+
+### 1. Student Journey
+
+<lov-mermaid>
+journey
+    title Student User Journey
+    section Discovery
+      Visit Platform: 5: Student
+      Browse Families: 4: Student
+      Filter Results: 4: Student
+      View Family Details: 5: Student
+    section Connection
+      Register Account: 3: Student
+      Send Inquiry: 4: Student
+      Wait for Response: 2: Student
+      Receive Acceptance: 5: Student
+    section Management
+      Access Dashboard: 4: Student
+      Track Inquiries: 4: Student
+      Manage Connections: 4: Student
+</lov-mermaid>
+
+### 2. Host Family Journey
+
+<lov-mermaid>
+journey
+    title Host Family Journey
+    section Onboarding
+      Register as Family: 3: Family
+      Create Profile: 4: Family
+      Upload Photos: 4: Family
+      Add Family Story: 4: Family
+    section Management
+      Access Dashboard: 5: Family
+      Review Inquiries: 4: Family
+      Accept/Decline: 4: Family
+      Communicate: 5: Family
+</lov-mermaid>
+
+### 3. Authentication Flow
+
+<lov-mermaid>
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant S as Supabase Auth
+    participant DB as Database
+    participant T as Trigger Function
+
+    U->>F: Register (email, password, userType)
+    F->>S: signUp()
+    S->>DB: Insert into auth.users
+    DB->>T: Trigger: handle_new_user()
+    T->>DB: Insert into user_profiles
+    T->>DB: Set user_type = 'student' (default)
+    
+    alt User Type != 'student'
+        F->>DB: Update user_type
+    end
+    
+    alt User Type == 'student'
+        F->>DB: Insert into students table
+    end
+    
+    S->>U: Send confirmation email
+    U->>S: Confirm email
+    S->>F: Authentication complete
+</lov-mermaid>
+
+### 4. Inquiry System Flow
+
+<lov-mermaid>
+sequenceDiagram
+    participant S as Student
+    participant F as Frontend  
+    participant DB as Database
+    participant H as Host Family
+    participant N as Notifications
+
+    S->>F: Send connection request
+    F->>DB: Verify student authentication
+    F->>DB: Get student ID from profiles
+    F->>DB: Insert inquiry (student_id, family_id, message)
+    DB->>N: Notify family of new inquiry
+    
+    H->>F: View dashboard
+    F->>DB: Fetch family inquiries
+    DB->>F: Return inquiry list
+    F->>H: Display pending requests
+    
+    H->>F: Accept/Decline inquiry
+    F->>DB: Update inquiry status
+    DB->>N: Notify student of response
+    N->>S: Status update notification
+</lov-mermaid>
+
+### 5. System Architecture Overview
+
+<lov-mermaid>
+graph TD
+    A[User Browser] --> B[React Frontend]
+    B --> C[React Router]
+    B --> D[TanStack Query]
+    B --> E[Auth Context]
+    
+    E --> F[Supabase Auth]
+    D --> G[Supabase Client]
+    
+    F --> H[PostgreSQL Database]
+    G --> H
+    H --> I[RLS Policies]
+    H --> J[Database Triggers]
+    
+    K[Admin Dashboard] --> G
+    L[Student Dashboard] --> G
+    M[Family Dashboard] --> G
+    
+    N[File Storage] --> G
+    O[Real-time Subscriptions] --> G
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style H fill:#e8f5e8
+    style F fill:#fff3e0
+</lov-mermaid>
+
+## Key Components Architecture
+
+### Authentication System
+- **Role-based access control** with three user types: `student`, `host_family`, `admin`
+- **Database triggers** automatically create user profiles on signup
+- **Row Level Security (RLS)** policies protect user data
+- **Supabase Auth** handles email verification and session management
+
+### Inquiry Management
+- **Real-time connection requests** between students and families
+- **Status tracking** system: `pending` → `accepted`/`declined`
+- **Bi-directional messaging** with family response capabilities
+- **Dashboard integration** for both user types
+
+### Data Security
+- **RLS policies** ensure users can only access their own data
+- **Authenticated API calls** with automatic session validation
+- **Database triggers** prevent direct client-side profile insertion
+- **Type-safe database operations** with generated TypeScript types
+
+## Development Workflow
+
+### Local Development Setup
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate to project directory
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# Install dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Using Lovable Platform
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Simply visit the [Lovable Project](https://lovable.dev/projects/8b93df0c-9e39-44ec-98cf-aec49d5a5278) and start prompting. Changes made via Lovable will be committed automatically to this repo.
 
-**Use GitHub Codespaces**
+## Deployment & Domain Setup
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Quick Deployment
+Simply open [Lovable](https://lovable.dev/projects/8b93df0c-9e39-44ec-98cf-aec49d5a5278) and click on Share → Publish.
 
-## What technologies are used for this project?
+### Custom Domain
+To connect a custom domain, navigate to Project → Settings → Domains and click Connect Domain.
+Read more: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
 
-This project is built with:
+## Future Development Roadmap
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Phase 1 Enhancements
+- [ ] **Real-time messaging system** with chat functionality
+- [ ] **Advanced search filters** (price range, amenities, dietary preferences)
+- [ ] **Photo upload system** for user profiles
+- [ ] **Review and rating system** for completed stays
 
-## How can I deploy this project?
+### Phase 2 Features
+- [ ] **Payment integration** for booking deposits
+- [ ] **Calendar system** for availability management
+- [ ] **Multi-language support** expansion
+- [ ] **Mobile app** development
 
-Simply open [Lovable](https://lovable.dev/projects/8b93df0c-9e39-44ec-98cf-aec49d5a5278) and click on Share -> Publish.
+### Phase 3 Advanced Features
+- [ ] **AI-powered matching** algorithm
+- [ ] **Video call integration** for virtual tours
+- [ ] **Contract management** system
+- [ ] **Background verification** services
 
-## Can I connect a custom domain to my Lovable project?
+## Database Migrations Reference
 
-Yes, you can!
+Key database objects created:
+- `handle_new_user()` function for automatic profile creation
+- Comprehensive RLS policies for data protection
+- Foreign key relationships between users, profiles, students, families, and inquiries
+- Optimized indexes for query performance
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Contributing & Maintenance
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Code Structure
+- **Components**: Reusable UI components following atomic design principles
+- **Pages**: Route-specific page components with business logic
+- **Hooks**: Custom React hooks for state management and API calls
+- **Types**: TypeScript definitions auto-generated from Supabase schema
+
+### Design System
+- **Semantic color tokens** defined in `index.css` and `tailwind.config.ts`
+- **Consistent component variants** using class-variance-authority
+- **Responsive design** with mobile-first approach
+- **Dark/light mode support** through CSS custom properties
+
+---
+
+## Technical Notes
+
+- **Authentication**: Supabase handles user sessions with automatic token refresh
+- **Real-time Updates**: TanStack Query provides optimistic updates and cache management  
+- **Type Safety**: Full TypeScript integration with Supabase generated types
+- **Performance**: Image optimization and lazy loading implemented throughout
+- **SEO**: Semantic HTML structure with proper meta tags and structured data
