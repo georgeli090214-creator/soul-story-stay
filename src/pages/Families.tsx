@@ -40,10 +40,10 @@ const Families = () => {
 
   const fetchFamilies = async () => {
     try {
+      // Use the secure public view that excludes user_id for anonymous users
       const { data, error } = await supabase
-        .from('families')
+        .from('families_public')
         .select('*')
-        .eq('verified', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
