@@ -114,6 +114,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "inquiries_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "inquiries_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -194,6 +201,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "student_stories_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "student_stories_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -270,7 +284,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      families_public: {
+        Row: {
+          average_stay_months: number | null
+          created_at: string | null
+          current_students: number | null
+          description: string | null
+          family_story: string | null
+          hosting_experience: string | null
+          id: string | null
+          location: string | null
+          name: string | null
+          photos: string[] | null
+          price_range: string | null
+          total_students_hosted: number | null
+          updated_at: string | null
+          values: string[] | null
+          verified: boolean | null
+          video_url: string | null
+          why_we_host: string | null
+        }
+        Insert: {
+          average_stay_months?: number | null
+          created_at?: string | null
+          current_students?: number | null
+          description?: string | null
+          family_story?: string | null
+          hosting_experience?: string | null
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          photos?: string[] | null
+          price_range?: string | null
+          total_students_hosted?: number | null
+          updated_at?: string | null
+          values?: string[] | null
+          verified?: boolean | null
+          video_url?: string | null
+          why_we_host?: string | null
+        }
+        Update: {
+          average_stay_months?: number | null
+          created_at?: string | null
+          current_students?: number | null
+          description?: string | null
+          family_story?: string | null
+          hosting_experience?: string | null
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          photos?: string[] | null
+          price_range?: string | null
+          total_students_hosted?: number | null
+          updated_at?: string | null
+          values?: string[] | null
+          verified?: boolean | null
+          video_url?: string | null
+          why_we_host?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_current_user_role: {
