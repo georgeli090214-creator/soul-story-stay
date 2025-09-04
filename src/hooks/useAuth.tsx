@@ -70,37 +70,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (!error && data.user) {
-      // Update user type if not student (trigger creates student by default)
-      if (userType !== 'student') {
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .update({ user_type: userType as any })
-          .eq('user_id', data.user.id);
+      // Wait a moment for trigger to create profile, then update user type if needed
+      setTimeout(async () => {
+        if (userType !== 'student') {
+          const { error: profileError } = await supabase
+            .from('user_profiles')
+            .update({ user_type: userType as any })
+            .eq('user_id', data.user.id);
 
-        if (profileError) {
-          console.error('Error updating user type:', profileError);
+          if (profileError) {
+            console.error('Error updating user type:', profileError);
+          }
         }
-      }
 
-      // Create student profile if needed
-      if (userType === 'student' && additionalData) {
-        const { error: studentError } = await supabase
-          .from('students')
-          .insert([
-            {
-              user_id: data.user.id,
-              name: additionalData.name,
-              age: additionalData.age,
-              university: additionalData.university,
-              hometown: additionalData.hometown,
-              bio: additionalData.bio
-            }
-          ]);
+        // Create student profile if needed
+        if (userType === 'student' && additionalData) {
+          const { error: studentError } = await supabase
+            .from('students')
+            .insert([
+              {
+                user_id: data.user.id,
+                name: additionalData.name,
+                age: additionalData.age,
+                university: additionalData.university,
+                hometown: additionalData.hometown,
+                bio: additionalData.bio
+              }
+            ]);
 
-        if (studentError) {
-          console.error('Error creating student profile:', studentError);
+          if (studentError) {
+            console.error('Error creating student profile:', studentError);
+          }
         }
-      }
+      }, 100);
 
       return { error: null };
     }
