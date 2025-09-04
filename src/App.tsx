@@ -7,6 +7,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import Landing from "./pages/Landing";
 import Families from "./pages/Families";
 import FamilyDetail from "./pages/FamilyDetail";
+import FamilyProfile from "./pages/FamilyProfile";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Families />} />
             <Route path="/families" element={<Families />} />
             <Route path="/family/:id" element={<FamilyDetail />} />
+            <Route path="/family-profile" element={<FamilyProfile />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />

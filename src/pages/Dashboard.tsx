@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { MessageCircle, Users, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { MessageCircle, Users, Clock, CheckCircle, XCircle, Home } from 'lucide-react';
+import { Navigate, Link } from 'react-router-dom';
 
 interface Inquiry {
   id: string;
@@ -198,6 +198,38 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Action Cards for Host Families */}
+        {userProfile.user_type === 'host_family' && (
+          <div className="mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Home className="h-5 w-5" />
+                  家庭资料管理 Family Profile Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      管理您的寄宿家庭资料，让学生更好地了解您的家庭
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Create or update your homestay profile to attract international students
+                    </p>
+                  </div>
+                  <Link to="/family-profile">
+                    <Button>
+                      <Home className="w-4 h-4 mr-2" />
+                      管理资料 Manage Profile
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Inquiries List */}
         <Card>

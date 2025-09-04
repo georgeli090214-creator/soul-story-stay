@@ -1,76 +1,77 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Heart, MapPin, Users, Clock, Star, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { InquiryModal } from "@/components/InquiryModal";
+import { useAuth } from "@/hooks/useAuth";
+
+interface Family {
+  id: string;
+  name: string;
+  location: string;
+  hosting_experience: string;
+  current_students: number;
+  price_range: string;
+  photos: string[] | null;
+  family_story: string | null;
+  why_we_host: string | null;
+  values: string[] | null;
+  verified: boolean;
+  total_students_hosted: number;
+  average_stay_months: number;
+}
 
 const Families = () => {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [families, setFamilies] = useState<Family[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
 
-  // Mock family data - in real app this would come from API
-  const families = [
-    {
-      id: 1,
-      name: "The Johnson Family",
-      chineseName: "约翰逊家庭",
-      location: "Vancouver, BC",
-      experience: "3 years hosting",
-      currentStudents: 2,
-      price: "$850/month",
-      rating: 4.9,
-      reviewCount: 15,
-      image: "https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=400&h=300&fit=crop",
-      highlights: ["Cultural celebrations", "Home-cooked meals", "Airport pickup"],
-      hostingStyle: "像家人一样关爱每位学生 - Treating every student like family"
-    },
-    {
-      id: 2,
-      name: "The Chen-Williams Family",
-      chineseName: "陈-威廉姆斯家庭",
-      location: "Toronto, ON",
-      experience: "5 years hosting",
-      currentStudents: 1,
-      price: "$900/month",
-      rating: 4.8,
-      reviewCount: 23,
-      image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&h=300&fit=crop",
-      highlights: ["Bilingual household", "University connections", "Study support"],
-      hostingStyle: "中西文化融合，助力学业成功 - East meets West for academic success"
-    },
-    {
-      id: 3,
-      name: "The Thompson Family",
-      chineseName: "汤普森家庭",
-      location: "Vancouver, BC",
-      experience: "2 years hosting",
-      currentStudents: 1,
-      price: "$800/month",
-      rating: 5.0,
-      reviewCount: 8,
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
-      highlights: ["Pet-friendly", "Garden access", "Cooking together"],
-      hostingStyle: "温馨小家庭，分享加拿大生活 - Cozy family sharing Canadian life"
-    },
-    {
-      id: 4,
-      name: "The Rodriguez Family",
-      chineseName: "罗德里格斯家庭",
-      location: "Montreal, QC",
-      experience: "4 years hosting",
-      currentStudents: 2,
-      price: "$750/month",
-      rating: 4.7,
-      reviewCount: 19,
-      image: "https://images.unsplash.com/photo-1574469172761-808fbc0be0af?w=400&h=300&fit=crop",
-      highlights: ["Multilingual", "City center", "Cultural activities"],
-      hostingStyle: "多元文化体验，探索魁北克文化 - Multicultural experience in Quebec"
+  useEffect(() => {
+    fetchFamilies();
+  }, []);
+
+  const fetchFamilies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('families')
+        .select('*')
+        .eq('verified', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setFamilies(data || []);
+    } catch (error) {
+      console.error('Error fetching families:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const filteredFamilies = families; // In real app, apply actual filtering
+  const handleConnectFamily = (family: Family) => {
+    setSelectedFamily(family);
+    setShowInquiryModal(true);
+  };
+
+  const filteredFamilies = families.filter(family => {
+    const matchesSearch = searchQuery === "" || 
+      family.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      family.location.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesFilter = filter === "all" || 
+      (filter === "vancouver" && family.location.toLowerCase().includes("vancouver")) ||
+      (filter === "toronto" && family.location.toLowerCase().includes("toronto")) ||
+      (filter === "experienced" && parseInt(family.hosting_experience) >= 3);
+    
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -150,101 +151,135 @@ const Families = () => {
         </div>
 
         {/* Family Grid */}
-        <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-6">
-          {filteredFamilies.map((family) => (
-            <Card 
-              key={family.id} 
-              className="overflow-hidden border-0 shadow-soft hover:shadow-warm transition-all duration-300 hover:-translate-y-2 cursor-pointer"
-            >
-              <div className="relative">
-                <img 
-                  src={family.image} 
-                  alt={family.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-primary text-primary-foreground">
-                    {family.price}
-                  </Badge>
-                </div>
-                <div className="absolute top-4 right-4">
-                  <div className="flex items-center gap-1 bg-white/90 px-2 py-1 rounded-full text-sm">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{family.rating}</span>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-lg text-muted-foreground">Loading families...</div>
+          </div>
+        ) : filteredFamilies.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-lg text-muted-foreground mb-4">
+              {searchQuery || filter !== "all" ? "No families match your search" : "No families available yet"}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {searchQuery || filter !== "all" ? "Try adjusting your filters" : "Host families will appear here once they register"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-6">
+            {filteredFamilies.map((family) => (
+              <Card 
+                key={family.id} 
+                className="overflow-hidden border-0 shadow-soft hover:shadow-warm transition-all duration-300 hover:-translate-y-2"
+              >
+                <div className="relative">
+                  <img 
+                    src={family.photos?.[0] || "https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=400&h=300&fit=crop"} 
+                    alt={family.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-primary text-primary-foreground">
+                      {family.price_range}
+                    </Badge>
                   </div>
-                </div>
-              </div>
-
-              <CardHeader className="pb-3">
-                <div className="space-y-2">
-                  <h3 className="font-bold text-lg leading-tight">
-                    {family.name}
-                  </h3>
-                  <p className="text-sm text-primary font-medium">
-                    {family.chineseName}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {family.location}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {family.experience}
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {family.hostingStyle}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-1">
-                    {family.highlights.slice(0, 2).map((highlight, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {highlight}
-                      </Badge>
-                    ))}
-                    {family.highlights.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{family.highlights.length - 2}
+                  <div className="absolute top-4 right-4">
+                    {family.verified && (
+                      <Badge className="bg-success text-success-foreground text-xs">
+                        Verified
                       </Badge>
                     )}
                   </div>
+                </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      <span>{family.currentStudents} current students</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Heart className="w-4 h-4" />
-                      <span>{family.reviewCount} reviews</span>
+                <CardHeader className="pb-3">
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-lg leading-tight">
+                      {family.name}
+                    </h3>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {family.location}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {family.hosting_experience}
+                      </div>
                     </div>
                   </div>
+                </CardHeader>
 
-                  <Link to={`/family/${family.id}`}>
-                    <Button className="w-full mt-4" size="sm">
-                      查看家庭故事 View Story
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    <p className="text-sm text-foreground leading-relaxed line-clamp-2">
+                      {family.why_we_host || family.family_story || "Welcome to our family home!"}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-1">
+                      {family.values?.slice(0, 2).map((value, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {value}
+                        </Badge>
+                      )) || (
+                        <Badge variant="secondary" className="text-xs">
+                          Welcoming Home
+                        </Badge>
+                      )}
+                      {(family.values?.length || 0) > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{(family.values?.length || 0) - 2}
+                        </Badge>
+                      )}
+                    </div>
 
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            Load More Families
-          </Button>
-        </div>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        <span>{family.current_students} current</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Heart className="w-4 h-4" />
+                        <span>{family.total_students_hosted} hosted</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 mt-4">
+                      <Link to={`/family/${family.id}`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full">
+                          查看详情 View Details
+                        </Button>
+                      </Link>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleConnectFamily(family)}
+                        disabled={!user}
+                        className="flex-1"
+                      >
+                        {!user ? "Login to Connect" : "连接 Connect"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
       </main>
+
+      {/* Inquiry Modal */}
+      {selectedFamily && (
+        <InquiryModal
+          isOpen={showInquiryModal}
+          onClose={() => {
+            setShowInquiryModal(false);
+            setSelectedFamily(null);
+          }}
+          familyId={selectedFamily.id}
+          familyName={selectedFamily.name}
+        />
+      )}
     </div>
   );
 };
