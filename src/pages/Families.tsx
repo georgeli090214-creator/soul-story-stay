@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Heart, MapPin, Users, Clock, Star, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { InquiryModal } from "@/components/InquiryModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,13 +26,18 @@ interface Family {
 }
 
 const Families = () => {
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [families, setFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
+
+  // Redirect host families to their dashboard
+  if (userProfile?.user_type === 'host_family') {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   useEffect(() => {
     fetchFamilies();
