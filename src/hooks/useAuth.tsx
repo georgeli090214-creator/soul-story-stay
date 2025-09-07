@@ -119,7 +119,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut({
+        scope: 'global'
+      });
+      if (error) {
+        console.error('Logout error:', error);
+        // Force clear local state even if API call fails
+        setUser(null);
+        setSession(null);
+        setUserProfile(null);
+        // Clear localStorage as fallback
+        localStorage.removeItem('supabase.auth.token');
+        window.location.href = '/auth';
+      }
+    } catch (err) {
+      console.error('Logout exception:', err);
+      // Force clear local state and redirect
+      setUser(null);
+      setSession(null);
+      setUserProfile(null);
+      localStorage.removeItem('supabase.auth.token');
+      window.location.href = '/auth';
+    }
   };
 
   const createProfile = async (userType: string, data: any) => {
