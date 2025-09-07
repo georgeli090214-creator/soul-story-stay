@@ -27,17 +27,18 @@ interface Family {
 
 const Families = () => {
   const { user, userProfile, signOut } = useAuth();
+  
+  // Redirect host families to their dashboard - MUST be before other hooks
+  if (userProfile?.user_type === 'host_family') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [families, setFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
-
-  // Redirect host families to their dashboard
-  if (userProfile?.user_type === 'host_family') {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   useEffect(() => {
     fetchFamilies();
