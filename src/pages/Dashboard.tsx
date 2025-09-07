@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { MessageCircle, Users, Clock, CheckCircle, XCircle, Home } from 'lucide-react';
+import { MessageCircle, Users, Clock, CheckCircle, XCircle, Home, MessageSquare } from 'lucide-react';
 import { Navigate, Link } from 'react-router-dom';
+import { ChatModal } from '@/components/ChatModal';
 
 interface Inquiry {
   id: string;
@@ -27,6 +28,8 @@ const Dashboard = () => {
   const { user, userProfile, loading, signOut } = useAuth();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [inquiriesLoading, setInquiriesLoading] = useState(true);
+  const [selectedChatInquiry, setSelectedChatInquiry] = useState<Inquiry | null>(null);
+  const [showChatModal, setShowChatModal] = useState(false);
 
   useEffect(() => {
     if (user && userProfile) {
@@ -105,6 +108,16 @@ const Dashboard = () => {
     } finally {
       setInquiriesLoading(false);
     }
+  };
+
+  const openChat = (inquiry: Inquiry) => {
+    setSelectedChatInquiry(inquiry);
+    setShowChatModal(true);
+  };
+
+  const closeChat = () => {
+    setShowChatModal(false);
+    setSelectedChatInquiry(null);
   };
 
   const updateInquiryStatus = async (inquiryId: string, status: 'pending' | 'accepted' | 'declined') => {
@@ -309,12 +322,41 @@ const Dashboard = () => {
                         </Button>
                       </div>
                     )}
+
+                    {inquiry.status === 'accepted' && (
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openChat(inquiry)}
+                          className="flex items-center gap-1"
+                        >
+                          <MessageSquare className="w-3 h-3" />
+                          聊天
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Chat Modal */}
+        {selectedChatInquiry && (
+          <ChatModal
+            isOpen={showChatModal}
+            onClose={closeChat}
+            inquiryId={selectedChatInquiry.id}
+            recipientName={
+              userProfile.user_type === 'student'
+                ? selectedChatInquiry.families?.name || '家庭'
+                : selectedChatInquiry.students?.name || '学生'
+            }
+            recipientType={userProfile.user_type === 'student' ? 'family' : 'student'}
+          />
+        )}
       </div>
     </div>
   );
