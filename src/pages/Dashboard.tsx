@@ -151,17 +151,31 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-warm-900">
-              {userProfile.user_type === 'student' ? '学生面板' : '家庭面板'}
-            </h1>
-            <p className="text-warm-600 mt-2">
-              欢迎回来！管理您的连接和消息
-            </p>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="text-2xl font-bold text-primary">
+              心灵港湾 <span className="text-sm text-muted-foreground">Soulful Home</span>
+            </Link>
+            {userProfile.user_type === 'student' && (
+              <Link to="/families">
+                <Button variant="outline" size="sm">
+                  浏览家庭 Browse Families
+                </Button>
+              </Link>
+            )}
           </div>
-          <Button variant="outline" onClick={signOut}>
-            退出登录
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <h1 className="text-xl font-bold text-warm-900">
+                {userProfile.user_type === 'student' ? '学生面板' : '家庭面板'}
+              </h1>
+              <p className="text-sm text-warm-600">
+                {userProfile.email}
+              </p>
+            </div>
+            <Button variant="outline" onClick={signOut}>
+              退出登录
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}

@@ -36,7 +36,10 @@ const Auth = () => {
     // Redirect based on user type
     if (userProfile?.user_type === 'admin') {
       return <Navigate to="/admin" replace />;
+    } else if (userProfile?.user_type === 'host_family') {
+      return <Navigate to="/dashboard" replace />;
     }
+    // Students go to families page to browse families
     return <Navigate to="/families" replace />;
   }
 

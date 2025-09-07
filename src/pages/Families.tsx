@@ -26,7 +26,7 @@ interface Family {
 }
 
 const Families = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [families, setFamilies] = useState<Family[]>([]);
@@ -104,16 +104,31 @@ const Families = () => {
             </Link>
             
             <div className="flex items-center gap-4">
-              <Link to="/dashboard">
-                <Button variant="outline">
-                  For Families
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button>
-                  Student Login
-                </Button>
-              </Link>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {user.email}
+                  </span>
+                  <Link to="/dashboard">
+                    <Button variant="outline" size="sm">
+                      面板 Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="outline">
+                      For Families
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button>
+                      Student Login
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
