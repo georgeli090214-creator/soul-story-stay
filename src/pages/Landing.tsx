@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Shield, Users, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-welcome.jpg";
 
 const Landing = () => {
+  const { user, userProfile, signOut } = useAuth();
   const [selectedCity, setSelectedCity] = useState<string>("");
 
   const cities = [
@@ -40,6 +42,60 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="text-2xl font-bold text-white">
+              心灵港湾 <span className="text-sm text-white/80">Soulful Home</span>
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/80">
+                    {user.email}
+                  </span>
+                  {userProfile?.user_type === 'student' && (
+                    <Link to="/families">
+                      <Button variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/20">
+                        浏览家庭 Browse Families
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to="/dashboard">
+                    <Button variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/20">
+                      面板 Dashboard
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={signOut}
+                    className="text-white border-white/30 hover:bg-white/20"
+                  >
+                    退出登录 Logout
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/20">
+                      For Families 
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90">
+                      Student Login
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div 
